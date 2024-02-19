@@ -8,11 +8,10 @@
 import UIKit
 import SwiftUI
 
-import UIKit
 
 class MainViewController: UIViewController, UIScrollViewDelegate {
 
-    var imageNames: [String] = ["banner1", "banner2"]
+    private var imageNames: [String] = ["banner1", "banner2"]
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -20,13 +19,11 @@ class MainViewController: UIViewController, UIScrollViewDelegate {
         setNaviItems()
         setScrollView()
         setContentView()
-        setStackView()
-        setBannerCollectionView()
-        setTestView()
+        setMainStackView()
         scrollView.delegate = self
     }
 
-    let scrollView: UIScrollView = {
+    private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.showsVerticalScrollIndicator = false
@@ -35,22 +32,58 @@ class MainViewController: UIViewController, UIScrollViewDelegate {
         return scrollView
     }()
 
-    let contentView: UIView = {
+    private let contentView: UIView = { //콘텐츠뷰
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .white
         return view
     }()
 
-    let stackView: UIStackView = {
+    private let stackView: UIStackView = { //스택뷰
         let stackView = UIStackView()
         stackView.axis = .vertical
+        stackView.distribution = .equalSpacing
         stackView.spacing = 20
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
     }()
 
-    let bannerCollectionView: UICollectionView = {
+    private let bannerCollectionView: UICollectionView = { //최상단 배너콜렉션뷰
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.backgroundColor = .white
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.showsHorizontalScrollIndicator = false
+        return collectionView
+    }()
+    
+    let pointMissionStackView : UIStackView = {
+        
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        stackView.distribution = .equalSpacing
+        stackView.alignment = .fill
+        stackView.spacing = 5
+        
+        return stackView
+        
+    }()
+    
+    
+    let pointMissionlabel : UILabel = { //포인트 미션 글자 라벨
+        
+        let label = UILabel()
+        label.text = "포인트 미션"
+        label.font = UIFont.systemFont(ofSize: 25, weight: .bold)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        
+        return label
+        
+    }()
+    
+    let missionCollectionView : UICollectionView = { //포인트 미션 배너 콜렉션뷰
+        
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -60,14 +93,7 @@ class MainViewController: UIViewController, UIScrollViewDelegate {
         return collectionView
     }()
 
-    let testView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .brown
-        return view
-    }()
-
-    func setScrollView() {
+    private func setScrollView() {
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
 
@@ -75,55 +101,67 @@ class MainViewController: UIViewController, UIScrollViewDelegate {
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 20),
+            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 0),
         ])
     }
 
-    func setContentView() {
+    private func setContentView() {
+        
+        
         NSLayoutConstraint.activate([
-            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 0),
-            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 0),
-            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: 0),
-            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -0),
+            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
         ])
     }
 
-    func setStackView() {
+    private func setMainStackView() {
+        
+        //뷰 기초설정
         contentView.addSubview(stackView)
-
-        NSLayoutConstraint.activate([
-            stackView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            stackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            stackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-        ])
-    }
-
-    func setBannerCollectionView() {
         stackView.addArrangedSubview(bannerCollectionView)
-        let nibName = UINib(nibName: "BannerCollectionViewCell", bundle: nil)
-        bannerCollectionView.register(nibName, forCellWithReuseIdentifier: "MyCell")
+        stackView.addArrangedSubview(pointMissionlabel)
+        stackView.addArrangedSubview(missionCollectionView)
+        
+        //메인배너(가장 큰 배너) 설정
+        let MainBannerNibName = UINib(nibName: "BannerCollectionViewCell", bundle: nil)
+        bannerCollectionView.register(MainBannerNibName, forCellWithReuseIdentifier: "MyCell")
 
         bannerCollectionView.dataSource = self
         bannerCollectionView.delegate = self
+        
+        //포인트 미션 배너 설정
+        
+        missionCollectionView.delegate = self
+        missionCollectionView.dataSource = self
+        missionCollectionView.backgroundColor = .white
+        
+        let nibname = UINib(nibName: "MissionCollectionViewCell", bundle: nil)
+        missionCollectionView.register(nibname, forCellWithReuseIdentifier: "MissionCell")
+        
 
+        //오토레이아웃 설정
+        
         NSLayoutConstraint.activate([
-            bannerCollectionView.heightAnchor.constraint(equalToConstant: 300),
-        ])
+                stackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
+                stackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+                stackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -15),
+                stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant:  -0), // 수정된 부분
+                
+                bannerCollectionView.heightAnchor.constraint(equalToConstant: 350),
+                missionCollectionView.heightAnchor.constraint(equalToConstant: 150 )
+
+            ])
     }
 
-    func setTestView() {
-        stackView.addArrangedSubview(testView)
-
-        NSLayoutConstraint.activate([
-            testView.heightAnchor.constraint(equalToConstant: 1500),
-        ])
-    }
+ 
     
     
     
-    func setNaviItems() {
+    
+    private func setNaviItems() {
         let leftBarButton = UIButton(type: .custom)
         leftBarButton.setImage(UIImage(named: "happypointlogo"), for: .normal)
         leftBarButton.setImage(UIImage(named: "happypointlogoup"), for: .highlighted)
@@ -163,26 +201,67 @@ class MainViewController: UIViewController, UIScrollViewDelegate {
 
 extension MainViewController : UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int { //아이템 몇개?
-        return imageNames.count
+        if collectionView == bannerCollectionView {
+            print("콜렉션뷰 인식됨. ")
+            return imageNames.count
+        }
+        if collectionView == missionCollectionView {
+            print("콜렉션뷰 인식됨2")
+            return imageNames.count
+        }
+        return 0
+
+
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell { //어떤 셀?
         
-        guard let cell = bannerCollectionView.dequeueReusableCell(withReuseIdentifier: "MyCell", for: indexPath) as? BannerCollectionViewCell
-        else{
-            return UICollectionViewCell()
-        }
-        cell.imageView.image = UIImage(named: "\(imageNames[indexPath.row])")
         
+        if collectionView == bannerCollectionView {
+            guard let cell = bannerCollectionView.dequeueReusableCell(withReuseIdentifier: "MyCell", for: indexPath) as? BannerCollectionViewCell
+            else{
+                return UICollectionViewCell()
+            }
+            cell.imageView.image = UIImage(named: "\(imageNames[indexPath.row])")
+            
+            
+            return cell
+            
+        }
+        if collectionView == missionCollectionView {
+            
 
-        return cell
+            guard let cell = missionCollectionView.dequeueReusableCell(withReuseIdentifier:  "MissionCell", for: indexPath) as? MissionCollectionViewCell
+            else{
+                return UICollectionViewCell()
+            }
+            
+            cell.missionImage.image =  UIImage(named: "\(imageNames[indexPath.row])")
+            
+            return cell
+        }
+        return UICollectionViewCell()
+        
+        
+        
         
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize { //아이템의 크기
-        return CGSize(width: view.frame.width, height: 200)
+        
+        if collectionView == bannerCollectionView {
+            return CGSize(width: stackView.frame.width , height: stackView.frame.width  )
+
+        }
+        else if collectionView == missionCollectionView {
+            
+            return CGSize(width: stackView.frame.width / 3, height: stackView.frame.width / 3)
+            
+        }
+        return CGSize(width: 100, height: 100)
     }
     
+   
     
 }
 
