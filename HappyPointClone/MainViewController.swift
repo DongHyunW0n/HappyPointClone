@@ -64,7 +64,9 @@ class MainViewController: UIViewController, UIScrollViewDelegate {
         stackView.axis = .vertical
         stackView.distribution = .equalSpacing
         stackView.alignment = .fill
-        stackView.spacing = 5
+        stackView.spacing = 0
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        
         
         return stackView
         
@@ -92,6 +94,63 @@ class MainViewController: UIViewController, UIScrollViewDelegate {
         collectionView.showsHorizontalScrollIndicator = false
         return collectionView
     }()
+    
+
+    let marketStackView : UIStackView = {
+        
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        stackView.distribution = .equalSpacing
+        stackView.alignment = .fill
+        stackView.spacing = 0
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        
+        
+        return stackView
+    }()
+    
+    let marketLabel : UILabel = {
+        
+        let label = UILabel()
+        
+        label.text = "마켓"
+        label.font = UIFont.systemFont(ofSize: 25, weight: .bold)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        
+        return label
+
+    }()
+    
+    let buttonStackView : UIStackView = {
+        
+        let stackView = UIStackView()
+        
+        stackView.axis = .horizontal
+        stackView.distribution = .fillEqually
+        
+        
+        
+        return stackView
+    }()
+    
+    let marketButton1 : UIButton = {
+        
+        
+        
+    }
+    
+    let marketButton2 : UIButton = {
+        
+        
+        
+    }
+    
+    let marketButton3 : UIButton = {
+        
+        
+        
+    }
+    
 
     private func setScrollView() {
         view.addSubview(scrollView)
@@ -122,8 +181,16 @@ class MainViewController: UIViewController, UIScrollViewDelegate {
         //뷰 기초설정
         contentView.addSubview(stackView)
         stackView.addArrangedSubview(bannerCollectionView)
-        stackView.addArrangedSubview(pointMissionlabel)
-        stackView.addArrangedSubview(missionCollectionView)
+        
+        //포인트 미션 스택뷰 설정
+        stackView.addArrangedSubview(pointMissionStackView)
+        pointMissionStackView.addArrangedSubview(pointMissionlabel)
+        pointMissionStackView.addArrangedSubview(missionCollectionView)
+        
+        //마켓 스택뷰 설정
+        stackView.addArrangedSubview(marketStackView)
+        marketStackView.addArrangedSubview(marketLabel)
+        
         
         //메인배너(가장 큰 배너) 설정
         let MainBannerNibName = UINib(nibName: "BannerCollectionViewCell", bundle: nil)
@@ -151,7 +218,7 @@ class MainViewController: UIViewController, UIScrollViewDelegate {
                 stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant:  -0), // 수정된 부분
                 
                 bannerCollectionView.heightAnchor.constraint(equalToConstant: 350),
-                missionCollectionView.heightAnchor.constraint(equalToConstant: 150 )
+                missionCollectionView.heightAnchor.constraint(equalToConstant: 150),
 
             ])
     }
